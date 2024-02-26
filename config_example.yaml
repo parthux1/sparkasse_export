@@ -1,0 +1,6 @@
+username: online banking username
+password: online banking password
+2auth_timeout: time for oauth2
+iban: IBAN to select
+export_text: button title of export
+debug: if true - run with ui and don't exit at the end

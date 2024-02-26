@@ -1,0 +1,135 @@
+"""Login to Sparkasse EE online banking and download transaction history (default time on website = 3 months).
+Used webdriver: firefox at default snap installation path
+Exit codes:
+0: Downlaod sucessfull
+1: unspecified error. might be: config.yaml not found
+2: login failed due to oauth2 timeout
+"""
+# credentials
+import yaml
+# selenium
+from selenium.webdriver import Firefox
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
+
+import sys  # early exit
+import os  # concat os paths
+import pathlib  # get current path
+
+# logging
+import logging
+from datetime import datetime
+
+# sleep timer
+import tqdm
+from time import sleep
+
+CREDENTIALS_FILE = 'config.yaml'
+SPEE_BASE = "https://www.spk-elbe-elster.de/de/home/login-online-banking.html"
+FIREFOX_GECKO_PATH = '/snap/bin/firefox'
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter('[%(asctime)s|%(levelname)s] %(message)s', datefmt='%d.%m.%Y %H:%M:%S')
+handler_console = logging.StreamHandler()
+handler_console.setFormatter(formatter)
+
+FILE_NAME = 'logs/' + datetime.now().strftime('%Y-%m%-d_%H-%M-%S.log')
+handler_file = logging.FileHandler(FILE_NAME, mode='w+')
+handler_file.setFormatter(formatter)
+
+logger.addHandler(handler_console)
+logger.addHandler(handler_file)
+
+# get credentials
+logger.info(f'Loading credentials from {CREDENTIALS_FILE}.')
+
+with open(CREDENTIALS_FILE, 'r') as ymlfile:
+    CREDENTIALS = yaml.safe_load(ymlfile)
+
+# workaround for using firefox installed by snap
+INSTALL_DIR = "/snap/firefox/current/usr/lib/firefox"
+DRIVER_LOC = os.path.join(INSTALL_DIR, "geckodriver")
+BINARY_LOC = os.path.join(INSTALL_DIR, "firefox")
+
+logger.info(f'Using driver at: {DRIVER_LOC}')
+logger.info(f'Using binary at: {BINARY_LOC}')
+logger.info(f'Debug mode: {CREDENTIALS["debug"]}')
+
+# setup driver
+service = Service(DRIVER_LOC)
+opts = Options()
+opts.binary_location = BINARY_LOC
+
+DOWNLOAD_PATH = str(pathlib.Path().resolve()) + '/download'
+if not CREDENTIALS['debug']:
+    opts.add_argument('-headless')  # don't display firefox window
+opts.set_preference('browser.download.dir', DOWNLOAD_PATH)  # custom download path
+opts.set_preference("browser.download.folderList", 2)  # use custom download path
+
+driver = Firefox(service=service, options=opts)
+logger.info(f'Driver started with\noptions: {opts.arguments}\npreferences: {opts.preferences}')
+
+# login
+driver.get(SPEE_BASE)
+
+# decline cookies
+logger.info('Declining cookies.')
+driver.find_element(By.CLASS_NAME, 'secondary').click()
+
+# id for username & password input are randomized each time. Access them by other unique mappings
+# both can be accessed using their label. It references the input-id with its 'for' attribute
+
+# username
+logger.info('Entering username')
+driver.find_element(By.CLASS_NAME, 'nbf-text-input').send_keys(CREDENTIALS['username'])
+driver.find_element(By.ID, 'defaultAction').click()
+
+# password
+logger.info('Entering password')
+WEB_ID_PW = driver.find_element(By.XPATH, '//label[text()="Passwort/PIN"]').get_attribute('for')
+
+driver.find_element(By.ID, WEB_ID_PW).send_keys(CREDENTIALS['password'])
+driver.find_element(By.ID, 'defaultAction').click()
+
+logger.info(f'Waiting for 2auth. Timeout in {CREDENTIALS["2auth_timeout"]} seconds')
+try:
+    # wait till 2auth completion
+    WebDriverWait(driver, CREDENTIALS['2auth_timeout']).until(EC.presence_of_element_located((By.CLASS_NAME, 'success-msg')))
+    driver.find_element(By.ID, 'defaultAction').click()
+
+except TimeoutException:
+    logger.warning(f'hit timeout. Exiting.')
+    sys.exit(2)
+
+logger.info('Selecting bank account.')
+
+XPATH_STR = f'//a[contains(@aria-label,"{CREDENTIALS["iban"]}")]'
+WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, XPATH_STR))).click()
+
+logger.info('Opening export area.')
+driver.find_element(By.CLASS_NAME, 'nbf-druckExportLabel').click()
+driver.find_element(By.CLASS_NAME, 'dummy').click()
+
+logger.info('Triggering export')
+XPATH_STR = f'//a[@title="{CREDENTIALS["export_text"]}"]'
+WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, XPATH_STR))).click()
+
+if not CREDENTIALS['debug']:
+    logger.info('Sleeping 5 seconds for download to finish before logging out.')
+    for i in tqdm.tqdm(range(0, 5)):
+        sleep(1)
+
+    # logout button has no id or class. Navigate to it using its span
+    logout_span = driver.find_element(By.XPATH, '//span[text()="Abmelden"]')
+    logout_span.find_element(By.XPATH, '..').click()
+
+    driver.close()
+
+logger.info('Script finished.')
