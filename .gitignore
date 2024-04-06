@@ -1,5 +1,9 @@
-# credentials
+# configuration and credentials
 config.yaml
+
+# trivial config paths
+download/
+logs/
 
 #pycharm
 .idea/
