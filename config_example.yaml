@@ -1,6 +1,12 @@
-username: online banking username
-password: online banking password
-2auth_timeout: time for oauth2
-iban: IBAN to select
-export_text: button title of export
-debug: if true - run with ui and don't exit at the end
+personal:
+  username: online banking username
+  password: online banking password
+  2auth_timeout: time for oauth2
+  iban: IBAN to select
+  export_text: button title of export
+script:
+  debug: if true - run with ui and don't exit at the end
+  spee_url: URL to Sparkasse login website
+  firefox_install_path: Path to firefox installation with gecko driver (not ending with /)
+  log_path: path to write logs to (not ending with /)
+  download_path: path to download exports to (not ending with /)

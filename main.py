@@ -5,6 +5,8 @@ Exit codes:
 1: unspecified error. might be: config.yaml not found
 2: login failed due to oauth2 timeout
 """
+CONFIG_FILE = 'config.yaml'
+
 # credentials
 import yaml
 # selenium
@@ -28,56 +30,53 @@ from datetime import datetime
 import tqdm
 from time import sleep
 
-CREDENTIALS_FILE = 'config.yaml'
-SPEE_BASE = "https://www.spk-elbe-elster.de/de/home/login-online-banking.html"
-FIREFOX_GECKO_PATH = '/snap/bin/firefox'
-
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+print(f'loading config from {CONFIG_FILE}')
+with open(CONFIG_FILE, 'r') as ymlfile:
+    CONFIG = yaml.safe_load(ymlfile)
+    CREDENTIALS = CONFIG['personal']
+    CONF_SCRIPT = CONFIG['script']
+
+print(f'finished. Initialising logger')
 
 formatter = logging.Formatter('[%(asctime)s|%(levelname)s] %(message)s', datefmt='%d.%m.%Y %H:%M:%S')
 handler_console = logging.StreamHandler()
 handler_console.setFormatter(formatter)
 
-FILE_NAME = 'logs/' + datetime.now().strftime('%Y-%m%-d_%H-%M-%S.log')
+FILE_NAME = CONF_SCRIPT['log_path'] + '/' + datetime.now().strftime('%Y-%m%-d_%H-%M-%S.log')
 handler_file = logging.FileHandler(FILE_NAME, mode='w+')
 handler_file.setFormatter(formatter)
 
 logger.addHandler(handler_console)
 logger.addHandler(handler_file)
+logger.info('Logger initialized')
 
-# get credentials
-logger.info(f'Loading credentials from {CREDENTIALS_FILE}.')
+DRIVER_LOC = os.path.join(CONF_SCRIPT['firefox_install_path'], "geckodriver")
+BINARY_LOC = os.path.join(CONF_SCRIPT['firefox_install_path'], "firefox")
 
-with open(CREDENTIALS_FILE, 'r') as ymlfile:
-    CREDENTIALS = yaml.safe_load(ymlfile)
-
-# workaround for using firefox installed by snap
-INSTALL_DIR = "/snap/firefox/current/usr/lib/firefox"
-DRIVER_LOC = os.path.join(INSTALL_DIR, "geckodriver")
-BINARY_LOC = os.path.join(INSTALL_DIR, "firefox")
-
-logger.info(f'Using driver at: {DRIVER_LOC}')
-logger.info(f'Using binary at: {BINARY_LOC}')
-logger.info(f'Debug mode: {CREDENTIALS["debug"]}')
+logger.info(f'Using firefox driver at: {DRIVER_LOC}')
+logger.info(f'Using firefox binary at: {BINARY_LOC}')
+logger.info(f'Debug mode: {CONF_SCRIPT["debug"]}')
 
 # setup driver
 service = Service(DRIVER_LOC)
 opts = Options()
 opts.binary_location = BINARY_LOC
 
-DOWNLOAD_PATH = str(pathlib.Path().resolve()) + '/download'
-if not CREDENTIALS['debug']:
+FULL_DOWNLOAD_PATH = str(pathlib.Path().resolve()) + CONF_SCRIPT['download_path']
+if not CONF_SCRIPT['debug']:
     opts.add_argument('-headless')  # don't display firefox window
-opts.set_preference('browser.download.dir', DOWNLOAD_PATH)  # custom download path
+
+opts.set_preference('browser.download.dir', FULL_DOWNLOAD_PATH)  # custom download path
 opts.set_preference("browser.download.folderList", 2)  # use custom download path
 
 driver = Firefox(service=service, options=opts)
 logger.info(f'Driver started with\noptions: {opts.arguments}\npreferences: {opts.preferences}')
 
 # login
-driver.get(SPEE_BASE)
+driver.get(CONF_SCRIPT['spee_url'])
 
 # decline cookies
 logger.info('Declining cookies.')
@@ -121,7 +120,7 @@ logger.info('Triggering export')
 XPATH_STR = f'//a[@title="{CREDENTIALS["export_text"]}"]'
 WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, XPATH_STR))).click()
 
-if not CREDENTIALS['debug']:
+if not CONF_SCRIPT['debug']:
     logger.info('Sleeping 5 seconds for download to finish before logging out.')
     for i in tqdm.tqdm(range(0, 5)):
         sleep(1)
