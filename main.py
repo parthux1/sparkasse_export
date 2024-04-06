@@ -65,7 +65,7 @@ service = Service(DRIVER_LOC)
 opts = Options()
 opts.binary_location = BINARY_LOC
 
-FULL_DOWNLOAD_PATH = str(pathlib.Path().resolve()) + CONF_SCRIPT['download_path']
+FULL_DOWNLOAD_PATH = str(pathlib.Path().resolve()) + '/' + CONF_SCRIPT['download_path']
 if not CONF_SCRIPT['debug']:
     opts.add_argument('-headless')  # don't display firefox window
 

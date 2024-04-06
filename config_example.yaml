@@ -9,4 +9,4 @@ script:
   spee_url: URL to Sparkasse login website
   firefox_install_path: Path to firefox installation with gecko driver (not ending with /)
   log_path: path to write logs to (not ending with /)
-  download_path: path to download exports to (not ending with /)
+  download_path: relative path (to this script) to download exports to (not ending with /)
