@@ -100,7 +100,7 @@ driver.find_element(By.ID, 'defaultAction').click()
 logger.info(f'Waiting for 2auth. Timeout in {CREDENTIALS["2auth_timeout"]} seconds')
 try:
     # wait till 2auth completion
-    WebDriverWait(driver, CREDENTIALS['2auth_timeout']).until(EC.presence_of_element_located((By.CLASS_NAME, 'success-msg')))
+    WebDriverWait(driver, CREDENTIALS['2auth_timeout']).until(EC.presence_of_element_located((By.CLASS_NAME, 'mkp-notification-header-headline')))
     driver.find_element(By.ID, 'defaultAction').click()
 
 except TimeoutException:
