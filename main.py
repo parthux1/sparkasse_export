@@ -114,10 +114,15 @@ WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, XPATH_STR)
 
 logger.info('Opening export area.')
 driver.find_element(By.CLASS_NAME, 'nbf-druckExportLabel').click()
-driver.find_element(By.CLASS_NAME, 'dummy').click()
 
+# download options are wrapped in a div.
+# classes are either 'umsatzdrucken opened' or `umsatzdrucken opened opened-all`
+sleep(5)
+
+driver.find_element(By.CLASS_NAME, 'dummy').click()  # open "more" element if export text is hidden
 logger.info('Triggering export')
 XPATH_STR = f'//a[@title="{CREDENTIALS["export_text"]}"]'
+
 WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, XPATH_STR))).click()
 
 if not CONF_SCRIPT['debug']:
