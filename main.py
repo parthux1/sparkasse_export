@@ -13,7 +13,7 @@ import yaml
 from selenium.webdriver import Firefox
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
@@ -100,7 +100,8 @@ driver.find_element(By.ID, 'defaultAction').click()
 logger.info(f'Waiting for 2auth. Timeout in {CREDENTIALS["2auth_timeout"]} seconds')
 try:
     # wait till 2auth completion
-    WebDriverWait(driver, CREDENTIALS['2auth_timeout']).until(EC.presence_of_element_located((By.CLASS_NAME, 'mkp-notification-header-headline')))
+    WebDriverWait(driver, CREDENTIALS['2auth_timeout']).until(
+        EC.presence_of_element_located((By.CLASS_NAME, 'mkp-notification-header-headline')))
     driver.find_element(By.ID, 'defaultAction').click()
 
 except TimeoutException:
@@ -117,9 +118,14 @@ driver.find_element(By.CLASS_NAME, 'nbf-druckExportLabel').click()
 
 # download options are wrapped in a div.
 # classes are either 'umsatzdrucken opened' or `umsatzdrucken opened opened-all`
-sleep(5)
+try:
+    driver.find_element(By.CLASS_NAME, "umsatzdrucken opened")
+except NoSuchElementException as e:
+    logger.info('"umsatzdrucken opened" not found. Try pressing expand button.')
+    sleep(3)
+    driver.find_element(By.CLASS_NAME, 'dummy').click()  # open "more" element if export text is hidden
 
-driver.find_element(By.CLASS_NAME, 'dummy').click()  # open "more" element if export text is hidden
+
 logger.info('Triggering export')
 XPATH_STR = f'//a[@title="{CREDENTIALS["export_text"]}"]'
 
