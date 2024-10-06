@@ -119,14 +119,6 @@ BUTTON_EXPORT_TEXT = CONFIG['script']['button_export_span_text']
 logger.info('Opening export area.')
 driver.find_element(By.XPATH, f'//button/span[contains(text(), "{BUTTON_EXPORT_TEXT}")]').click()
 
-# download options are wrapped in a div.
-# classes are either 'umsatzdrucken opened' or `umsatzdrucken opened opened-all`
-try:
-    driver.find_element(By.CLASS_NAME, "umsatzdrucken opened")
-except NoSuchElementException as e:
-    logger.info('"umsatzdrucken opened" not found. Try pressing expand button.')
-    sleep(3)
-    driver.find_element(By.CLASS_NAME, 'dummy').click()  # open "more" element if export text is hidden
 
 logger.info('Triggering export')
 XPATH_STR = f'//a[@title="{CREDENTIALS["export_text"]}"]'
