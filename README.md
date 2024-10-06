@@ -1,10 +1,14 @@
 # sparkasse export
 
-A script for downloading transaction history of Sparkasse - Online Banking.  
+A script for downloading transaction history of Sparkasse - Online Banking using selenium.
+Currently only tested for german language.
+
+You'll need to supply login username and password. 
+An oauth2 request will be sent every time the script runs.
 
 ## Setup procedure
 
-- copy `config_template.yaml` and store it as `config.yaml`
+- duplicate `config_template.yaml` as `config.yaml`
 - replace all values in it
 - create your venv:
 ```bash
@@ -14,5 +18,3 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 ```
 - run the script
-
-
