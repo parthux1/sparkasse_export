@@ -1,12 +1,34 @@
+# Example configuration file
 personal:
-  username: online banking username
-  password: online banking password
-  2auth_timeout: time for oauth2
-  iban: IBAN to select
-  export_text: button title of export
+  # online banking username
+  username:
+  # online banking password
+  password:
+  # time to wait for oauth2 in seconds.
+  # Raises exception duration passed
+  2auth_timeout:
+  iban:
+  # export to trigger. In the banking ui, a dropdown lists different options like
+  # "Excel (CSV-MT940)", ""
+  export_text:
 script:
-  debug: if true - run with ui and don't exit at the end
-  spee_url: URL to Sparkasse login website
-  firefox_install_path: Path to firefox installation with gecko driver (not ending with /)
-  log_path: path to write logs to (not ending with /)
-  download_path: relative path (to this script) to download exports to (not ending with /)
+  # True or False. If true selenium runs with GUI
+  debug:
+  # URL to Sparkasse login website like
+  # "https://www.ksk-koeln.de/de/home/login-online-banking.html"
+  # "https://www.haspa.de/de/home/login-online-banking.html"
+  spee_url:
+  # Path to firefox installation with gecko driver (not ending with /)
+  # you can find it on linux using `which firefox` or `which geckodriver`
+  # for ubuntu-snap: literal path "/snap/firefox/current/usr/lib/firefox"
+  firefox_install_path:
+  # relative path (starting from script) to write logs to (not ending with /)
+  log_path: logs
+  # relative path (starting from script) to download exports to (not ending with /)
+  download_path: download
+
+  # settings defining page references for finding buttons
+  # this configuration works for me as of 2024-10-06
+  # if your scripts fails inspect website in debug-mode and update this
+  input_password_label_text: "Online-Banking-PIN"
+  button_export_span_text: "Exportieren"

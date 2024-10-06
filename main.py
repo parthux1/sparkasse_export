@@ -5,6 +5,7 @@ Exit codes:
 1: unspecified error. might be: config.yaml not found
 2: login failed due to oauth2 timeout
 """
+
 CONFIG_FILE = 'config.yaml'
 
 # credentials
@@ -91,8 +92,9 @@ driver.find_element(By.CLASS_NAME, 'nbf-text-input').send_keys(CREDENTIALS['user
 driver.find_element(By.ID, 'defaultAction').click()
 
 # password
+INPUT_PW_TEXT = CONFIG['script']['input_password_label_text']
 logger.info('Entering password')
-WEB_ID_PW = driver.find_element(By.XPATH, '//label[text()="Passwort/PIN"]').get_attribute('for')
+WEB_ID_PW = driver.find_element(By.XPATH, f'//label[text()="{INPUT_PW_TEXT}"]').get_attribute('for')
 
 driver.find_element(By.ID, WEB_ID_PW).send_keys(CREDENTIALS['password'])
 driver.find_element(By.ID, 'defaultAction').click()
@@ -113,8 +115,9 @@ logger.info('Selecting bank account.')
 XPATH_STR = f'//a[contains(@aria-label,"{CREDENTIALS["iban"]}")]'
 WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, XPATH_STR))).click()
 
+BUTTON_EXPORT_TEXT = CONFIG['script']['button_export_span_text']
 logger.info('Opening export area.')
-driver.find_element(By.CLASS_NAME, 'nbf-druckExportLabel').click()
+driver.find_element(By.XPATH, f'//button/span[contains(text(), "{BUTTON_EXPORT_TEXT}")]').click()
 
 # download options are wrapped in a div.
 # classes are either 'umsatzdrucken opened' or `umsatzdrucken opened opened-all`
@@ -124,7 +127,6 @@ except NoSuchElementException as e:
     logger.info('"umsatzdrucken opened" not found. Try pressing expand button.')
     sleep(3)
     driver.find_element(By.CLASS_NAME, 'dummy').click()  # open "more" element if export text is hidden
-
 
 logger.info('Triggering export')
 XPATH_STR = f'//a[@title="{CREDENTIALS["export_text"]}"]'
