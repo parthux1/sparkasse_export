@@ -123,7 +123,7 @@ driver.find_element(By.XPATH, f'//button/span[contains(text(), "{BUTTON_EXPORT_T
 
 
 logger.info('Triggering export')
-XPATH_STR = f'//a[@title="{CREDENTIALS["export_text"]}"]'
+XPATH_STR = f'//a/span[text()="{CREDENTIALS["export_text"]}"]'
 
 WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, XPATH_STR))).click()
 
