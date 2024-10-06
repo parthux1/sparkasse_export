@@ -94,7 +94,9 @@ driver.find_element(By.ID, 'defaultAction').click()
 # password
 INPUT_PW_TEXT = CONFIG['script']['input_password_label_text']
 logger.info('Entering password')
-WEB_ID_PW = driver.find_element(By.XPATH, f'//label[text()="{INPUT_PW_TEXT}"]').get_attribute('for')
+XPATH_STR_PW = f'//label[text()="{INPUT_PW_TEXT}"]'
+WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.XPATH, XPATH_STR_PW))).click()
+WEB_ID_PW = driver.find_element(By.XPATH, XPATH_STR_PW).get_attribute('for')
 
 driver.find_element(By.ID, WEB_ID_PW).send_keys(CREDENTIALS['password'])
 driver.find_element(By.ID, 'defaultAction').click()
