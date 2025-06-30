@@ -89,7 +89,8 @@ driver.find_element(By.CLASS_NAME, 'secondary').click()
 # username
 logger.info('Entering username')
 driver.find_element(By.CLASS_NAME, 'nbf-text-input').send_keys(CREDENTIALS['username'])
-driver.find_element(By.ID, 'defaultAction').click()
+XPATH_CONTINUE_BTN = '//input[@value="Weiter" and @title="Weiter"]'
+driver.find_element(By.XPATH, XPATH_CONTINUE_BTN).click()
 
 # password
 INPUT_PW_TEXT = CONFIG['script']['input_password_label_text']
@@ -99,22 +100,32 @@ WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.XPATH, XPATH_STR_P
 WEB_ID_PW = driver.find_element(By.XPATH, XPATH_STR_PW).get_attribute('for')
 
 driver.find_element(By.ID, WEB_ID_PW).send_keys(CREDENTIALS['password'])
-driver.find_element(By.ID, 'defaultAction').click()
+XPATH_LOGIN_BTN = '//input[@value="Anmelden" and @title="Anmelden"]'
+driver.find_element(By.XPATH, XPATH_LOGIN_BTN).click()
 
 logger.info(f'Waiting for 2auth. Timeout in {CREDENTIALS["2auth_timeout"]} seconds')
 try:
     # wait till 2auth completion
     WebDriverWait(driver, CREDENTIALS['2auth_timeout']).until(
         EC.presence_of_element_located((By.CLASS_NAME, 'mkp-notification-header-headline')))
-    driver.find_element(By.ID, 'defaultAction').click()
+    XPATH_2AUTH_CONTINUE_BTN = '//input[@value="Weiter" and @title="Weiter"]'
+    driver.find_element(By.XPATH, XPATH_2AUTH_CONTINUE_BTN).click()
 
 except TimeoutException:
     logger.warning(f'hit timeout. Exiting.')
     sys.exit(2)
 
+
+
+logger.info('Waiting for potential overlay-popup.')
+try:
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//a[@title="Schliessen"]'))).click()
+except TimeoutException:
+    logger.warning(f'hit timeout. Continuing.')
+
 logger.info('Selecting bank account.')
 
-XPATH_STR = f'//a[contains(@aria-label,"{CREDENTIALS["iban"]}")]'
+XPATH_STR = f'//div[@data-iban="{CREDENTIALS["iban"]}"]'
 WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, XPATH_STR))).click()
 
 BUTTON_EXPORT_TEXT = CONFIG['script']['button_export_span_text']
@@ -123,9 +134,14 @@ driver.find_element(By.XPATH, f'//button/span[contains(text(), "{BUTTON_EXPORT_T
 
 
 logger.info('Triggering export')
-XPATH_STR = f'//a/span[text()="{CREDENTIALS["export_text"]}"]'
+XPATH_STR = f'//span[text()="{CREDENTIALS["export_text"]}"]'
 
-WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, XPATH_STR))).click()
+try:
+    export_span = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, XPATH_STR)))
+    export_span.find_element(By.XPATH, '..').click()
+except TimeoutException:
+    logger.error(f'Element with text "{CREDENTIALS["export_text"]}" not found.')
+
 
 if not CONF_SCRIPT['debug']:
     logger.info('Sleeping 5 seconds for download to finish before logging out.')

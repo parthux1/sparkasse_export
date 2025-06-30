@@ -5,16 +5,17 @@ personal:
   # online banking password
   password:
   # time to wait for oauth2 in seconds.
-  # Raises exception duration passed
+  # Raises exception if duration passed
   2auth_timeout:
+  # This tool exports the transaction history for a single IBAN.
   iban:
-  # export to trigger. In the banking ui, a dropdown lists different options like
-  # "Excel (CSV-MT940)", ""
+  # export to trigger. In the banking ui, a dropdown lists different options, like
+  # "Excel (CSV-MT940)", "Excel (CSV-CAMT V8)"
   export_text:
 script:
-  # True or False. If true selenium runs with GUI
+  # True or False. If True, selenium runs with GUI
   debug:
-  # URL to Sparkasse login website like
+  # URL to Sparkasse's login website, like
   # "https://www.ksk-koeln.de/de/home/login-online-banking.html"
   # "https://www.haspa.de/de/home/login-online-banking.html"
   website_url:
@@ -28,7 +29,7 @@ script:
   download_path: download
 
   # settings defining page references for finding buttons
-  # this configuration works for me as of 2024-10-06
+  # this configuration works for me as of 2025-06-30
   # if your scripts fails inspect website in debug-mode and update this
   input_password_label_text: "Online-Banking-PIN"
   button_export_span_text: "Exportieren"

@@ -18,3 +18,30 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 ```
 - run the script
+
+# list of steps this script executes
+
+| Page               | Action                    | Component found using... |
+|--------------------|---------------------------|--------------------------|
+| Login Page         | Decline Cookies           | Classname                |
+| Login Page         | Enter Login Name          | Classname                | 
+| Login Page         | Press Continue-Button     | XPATH                    |
+| Login Page         | Enter PIN                 | ID                       |
+| Login Page         | Press Login-Button        | XPATH                    |
+| Banking Main Page  | (maybe) close overlay-ad  | XPATH                    |
+| Banking Main Page  | Click on IBAN             | XPATH                    |
+| IBAN Overview Page | Click on Export-Button    | XPATH                    |
+| IBAN Overview Page | Click on Specified Format | XPATH                    |
+| IBAN Overview Page | Logout                    | XPATH                    |
+
+# what if it doesn't work
+
+> Last checkd and fixed on 30.6.2025
+
+Webscraping is always tricky because you heavily depend on how the websites components are set up.   
+If the script doesn't work, probaby one of the implemented ways for finding a component is outdated.
+
+You can either 
+
+- set your application in debug mode, find out which component causes the problem and update the code to find it again
+- message me and I'll fix it
