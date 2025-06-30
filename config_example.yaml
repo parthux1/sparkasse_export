@@ -17,7 +17,7 @@ script:
   # URL to Sparkasse login website like
   # "https://www.ksk-koeln.de/de/home/login-online-banking.html"
   # "https://www.haspa.de/de/home/login-online-banking.html"
-  spee_url:
+  website_url:
   # Path to firefox installation with gecko driver (not ending with /)
   # you can find it on linux using `which firefox` or `which geckodriver`
   # for ubuntu-snap: literal path "/snap/firefox/current/usr/lib/firefox"

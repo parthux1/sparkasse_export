@@ -77,7 +77,7 @@ driver = Firefox(service=service, options=opts)
 logger.info(f'Driver started with\noptions: {opts.arguments}\npreferences: {opts.preferences}')
 
 # login
-driver.get(CONF_SCRIPT['spee_url'])
+driver.get(CONF_SCRIPT['website_url'])
 
 # decline cookies
 logger.info('Declining cookies.')
