@@ -43,5 +43,5 @@ If the script doesn't work, probaby one of the implemented ways for finding a co
 
 You can either 
 
-- set your application in debug mode, find out which component causes the problem and update the code to find it again
+- set your application to debug mode in your config file. Find out which component causes the problem and update the selector (XPATH/ID/..) to find it again
 - message me and I'll fix it
