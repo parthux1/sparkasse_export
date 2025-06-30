@@ -10,7 +10,7 @@ An oauth2 request will be sent every time the script runs.
 
 - duplicate `config_template.yaml` as `config.yaml`
 - replace all values in it
-- create your venv:
+- create your venv (tested with python 3.13):
 ```bash
 cd sparkasse_export
 python3 -m venv venv
